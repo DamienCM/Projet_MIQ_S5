@@ -8,12 +8,12 @@
 
    Depth of loop is 3
 
-Feature number 14 (COMPONENT, id = 479) 
+Feature number 12 (COMPONENT, id = 479) 
   in model ENSEMBLE_CHENILLE refers to:
 
 Feature number 5 (EXTRUDE_1, id = 400) 
   in model ARBRE refers to:
 
-Feature number 14 (COMPONENT, id = 479) 
+Feature number 12 (COMPONENT, id = 479) 
   in model ENSEMBLE_CHENILLE - circle closed.
 
