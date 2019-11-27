@@ -1,11 +1,9 @@
 #include <Servo.h>
 
-
 #define sensor A0 // Sharp IR GP2Y0A41SK0F (4-30cm, analog)
 #define enable_motor D3
 #define PIN_SENS_1 4
 #define PIN_SENS_2 2
-
 
 #define ETAT_INIT 0
 #define PHASE_PLAT 1
@@ -43,7 +41,7 @@ int etat = ETAT_INIT;
 
 int bouton_activation = 0;
 int reset = 0;
-char receivedChar = 'c';
+char receivedChar = '²';
 
 void setup() {
   /* Initialisation du port série */
@@ -61,22 +59,25 @@ void setup() {
   Servo2.attach(PIN_SERVO_2);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  /*Serial.println("UR:");
-  Serial.println(get_distance_US());
-  delay(500);*/
-  Serial.println("Tension IR:");
-  Serial.println(analogRead(sensor));
-  delay(500);
+void loop() { 
+  //On check si l'on a recu des données en serial
+  recvOneChar();
+  //On informe le terminal bluetooth de l'etat dans lequel on passe
+  Serial.println("etat:" + String(etat));
+  //On informe le terminal de l'etat instantanée de la commande/des capteurs
+  Serial.println("moteur:" + String(PIN_SENS_1));
+  Serial.println("servo_1:" + String(Servo1.read()));
+  Serial.println("servo_2:" + String(Servo2.read()));
+  Serial.println("US:" + String(get_distance_US()));
+  Serial.println("IR:" + String(get_distance_IR()));
   
   //Switch entre les cas en fonction des variables et de l'état précédent
   //Selon la phase dans laquele on est, on effectue cette loop
   switch(etat){
     case ETAT_INIT:
-      //inclure la lecture des button et du bluetooth
+      //inclure la lecture des button
       //On attend que le bouton passe à l'etat 1
-      if(bouton_activation == 1){
+      if(bouton_activation == 1 || receivedChar == 'S'){
         etat = PHASE_PLAT;
       }
       break;
@@ -125,7 +126,7 @@ void loop() {
 
     case PHASE_FINAL:
       //On arrete les moteur et on attend un reset
-      if(reset == 1){
+      if(reset == 1  || receivedChar == 'R'){
         etat = ETAT_INIT;
       }
       break;
