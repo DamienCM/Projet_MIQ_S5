@@ -2,6 +2,10 @@
 
 
 #define sensor A0 // Sharp IR GP2Y0A41SK0F (4-30cm, analog)
+#define enable_motor D3
+#define PIN_SENS_1 4
+#define PIN_SENS_2 2
+
 
 #define ETAT_INIT 0
 #define PHASE_PLAT 1
@@ -38,6 +42,8 @@ int passe = 0;
 int etat = ETAT_INIT;
 
 int bouton_activation = 0;
+int reset = 0;
+char receivedChar = 'c';
 
 void setup() {
   /* Initialisation du port série */
@@ -45,6 +51,8 @@ void setup() {
    
   /* Initialisation des broches */
   pinMode(TRIGGER_PIN, OUTPUT);
+  pinMode(TRIGGER_PIN, OUTPUT);
+  pinMode(PIN_SENS_1,OUTPUT);
   digitalWrite(TRIGGER_PIN, LOW); // La broche TRIGGER doit être à LOW au repos
   pinMode(ECHO_PIN, INPUT);
   
@@ -90,7 +98,6 @@ void loop() {
       }
       break;
     case PHASE_ESCALIER:
-      
       //on se remet à plat lentement et on avance jusqu'au palier
       Servo1.write(max(ANGLE_HAUT - passe*angle_enleve_par_tick,0));
       Servo2.write(max(ANGLE_HAUT - passe*angle_enleve_par_tick,0));
@@ -117,13 +124,21 @@ void loop() {
       break;
 
     case PHASE_FINAL:
-      //On arrete les moteur et on attend
+      //On arrete les moteur et on attend un reset
+      if(reset == 1){
+        etat = ETAT_INIT;
+      }
       break;
   }
   
   if(etat > ETAT_INIT && etat<PHASE_FINAL){
     //Tant que l'on est entre la phase initiale et la phase finale, on avance à la vitesse Vitesse
-    
+    analogWrite(enable_motor, 100);
+    //On met IN1 à vrai pour fermer le pont en H en sens avant
+    PIN_SENS_1 = 1;
+  }else{//On fait en sorte d'être à l'arret dans les autres cas
+    //On met IN1 à faux pour ouvrir le pont en H
+    PIN_SENS_1 = 0;
   }
 }
 
@@ -158,4 +173,11 @@ float get_distance_IR(){
     }else{
       return TROP_LOIN;
     }
+}
+
+void recvOneChar() {
+ if (Serial.available() > 0) {
+ receivedChar = Serial.read();
+ newData = true;
+ }
 }
