@@ -13,6 +13,7 @@
 #define PHASE_FINAL 5
 #define PIN_SERVO_1 3
 #define PIN_SERVO_2 4
+#define PIN_DEMMAREUR 9
 
 #define ANGLE_HAUT 70
 #define ANGLE_BAS -70
@@ -38,10 +39,7 @@ Servo Servo2;
 
 int passe = 0;
 int etat = ETAT_INIT;
-
-int bouton_activation = 0;
-int reset = 0;
-char receivedChar = '²';
+char receivedChar = '&';
 
 void setup() {
   /* Initialisation du port série */
@@ -51,6 +49,7 @@ void setup() {
   pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(PIN_SENS_1,OUTPUT);
+  pinMode(PIN_DEMMAREUR,INPUT);
   digitalWrite(TRIGGER_PIN, LOW); // La broche TRIGGER doit être à LOW au repos
   pinMode(ECHO_PIN, INPUT);
   
@@ -75,9 +74,8 @@ void loop() {
   //Selon la phase dans laquele on est, on effectue cette loop
   switch(etat){
     case ETAT_INIT:
-      //inclure la lecture des button
       //On attend que le bouton passe à l'etat 1
-      if(bouton_activation == 1 || receivedChar == 'S'){
+      if(digitalRead(PIN_DEMMAREUR) || receivedChar == 'S'){
         etat = PHASE_PLAT;
       }
       break;
@@ -126,7 +124,7 @@ void loop() {
 
     case PHASE_FINAL:
       //On arrete les moteur et on attend un reset
-      if(reset == 1  || receivedChar == 'R'){
+      if(receivedChar == 'R'){
         etat = ETAT_INIT;
       }
       break;
@@ -136,10 +134,10 @@ void loop() {
     //Tant que l'on est entre la phase initiale et la phase finale, on avance à la vitesse Vitesse
     analogWrite(enable_motor, 100);
     //On met IN1 à vrai pour fermer le pont en H en sens avant
-    PIN_SENS_1 = 1;
+    digitalWrite(PIN_SENS_1, HIGH);
   }else{//On fait en sorte d'être à l'arret dans les autres cas
     //On met IN1 à faux pour ouvrir le pont en H
-    PIN_SENS_1 = 0;
+    digitalWrite(PIN_SENS_1, LOW);
   }
 }
 
@@ -178,7 +176,7 @@ float get_distance_IR(){
 
 void recvOneChar() {
  if (Serial.available() > 0) {
- receivedChar = Serial.read();
- newData = true;
+  receivedChar = Serial.read();
+  newData = true;
  }
 }
