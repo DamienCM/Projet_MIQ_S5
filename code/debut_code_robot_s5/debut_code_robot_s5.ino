@@ -63,13 +63,19 @@ void loop() {
   //On check si l'on a recu des données en serial
   recvOneChar();
   //On informe le terminal bluetooth de l'etat dans lequel on passe
-  Serial.println("etat:" + String(etat));
+  Serial.print("etat:");
+  Serial.println(etat);
   //On informe le terminal de l'etat instantanée de la commande/des capteurs
-  Serial.println("moteur:" + String(PIN_SENS_1));
-  Serial.println("servo_1:" + String(Servo1.read()));
-  Serial.println("servo_2:" + String(Servo2.read()));
-  Serial.println("US:" + String(get_distance_US()));
-  Serial.println("IR:" + String(get_distance_IR()));
+  Serial.print("moteur:");
+  Serial.println(PIN_SENS_1);
+  Serial.print("servo_1:");
+  Serial.println(Servo1.read());
+  Serial.print("servo_2:");
+  Serial.println(Servo2.read());
+  Serial.print("US:");
+  Serial.println(get_distance_US());
+  Serial.print("IR:");
+  Serial.println(get_distance_IR());
   
   //Switch entre les cas en fonction des variables et de l'état précédent
   //Selon la phase dans laquele on est, on effectue cette loop
