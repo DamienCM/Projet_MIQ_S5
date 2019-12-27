@@ -1,7 +1,7 @@
 #include <Servo.h>
 
 #define sensor A0 // Sharp IR GP2Y0A41SK0F (4-30cm, analog)
-#define enable_motor D3
+#define enable_motor 3
 #define PIN_SENS_1 4
 #define PIN_SENS_2 2
 
@@ -40,6 +40,7 @@ Servo Servo2;
 int passe = 0;
 int etat = ETAT_INIT;
 char receivedChar = '&';
+boolean newData = false;
 
 void setup() {
   /* Initialisation du port série */
@@ -98,8 +99,8 @@ void loop() {
       break;
     case PHASE_ESCALIER:
       //on se remet à plat lentement et on avance jusqu'au palier
-      Servo1.write(max(ANGLE_HAUT - passe*angle_enleve_par_tick,0));
-      Servo2.write(max(ANGLE_HAUT - passe*angle_enleve_par_tick,0));
+      Servo1.write(max(ANGLE_HAUT - passe*var_angle_par_tick,0));
+      Servo2.write(max(ANGLE_HAUT - passe*var_angle_par_tick,0));
       //on compte le nb de passe que l'on a dans cette état
       passe = passe + 1;
       //Condition de passage à la phase suivante : le capteur US passe au dessus de 15 cm ? 10 ?
@@ -160,10 +161,11 @@ float get_distance_US(){ //On retourne une valeur lissée sur 10 lectures
 
 float get_distance_IR(){
   float val = 0;
+  float distance = 0;
   //moyennage des valeurs pour attenuer les dépassements ocasionels
   for(int i = 0; i<10;i++){
     float volts = analogRead(sensor)*0.0048828125;  // value from sensor * (5/1024)
-    float distance = 130*pow(volts, -1); // worked out from datasheet graph
+    distance = 130*pow(volts, -1); // worked out from datasheet graph
     val = val + distance;
   }
   
